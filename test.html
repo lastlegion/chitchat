@@ -1,0 +1,190 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ChitChat simulator</title>
+    <style type="text/css">
+        table{
+           // border: 1px solid #333;
+        }
+        td{
+            padding: 10px;
+            border: 1px solid #333;
+        }
+        .safe{
+            background: green;
+        }
+        .danger{
+            background: red;
+        }
+    </style>
+
+</head>
+<body>
+   <div id="main"></div> 
+</body>
+
+    <script type="text/javascript">
+    
+    var size;
+
+
+    var shuffle = function(o) {
+        for(var j,x,i = o.length; i; j = parseInt(Math.random() * i), x= o[--i],o[i] = o[j], o[j] = x);
+        return o;
+    };
+    var randomMove = function(){
+        var move = Math.floor((Math.random()*4) + 1);
+        return move;
+    }
+    var make_move = function(tokens, i, j, x ){
+        var move = Math.floor((Math.random()*4) + 1);
+        //check if valid
+     
+        if(move == 1){  //top
+            //bounds check
+            if(i == 0){     //topmost row
+                //make bottom move
+                tokens[i+1][j].push(tokens[i][j].splice(x,1)*1)
+            } else {
+                //make top move
+                tokens[i-1][j].push(tokens[i][j].splice(x,1)*1)
+            }
+
+        } else if(move == 2){   //right
+            //bounds check
+            if(j==size-1){
+                //make left move
+                tokens[i][j-1].push(tokens[i][j].splice(x,1)*1);
+            } else {
+                tokens[i][j+1].push(tokens[i][j].splice(x,1)*1);
+            }
+        } else if(move == 3){   //bottom
+            //bounds check
+            if(i == size-1){
+                //make top move
+                tokens[i-1][j].push(tokens[i][j].splice(x,1)*1);
+            } else {
+                tokens[i+1][j].push(tokens[i][j].splice(x,1)*1);
+            }
+        } else if(move == 4){   //left
+            //bounds check
+            if(j == 0){
+                //make right move
+                tokens[i][j+1].push(tokens[i][j].splice(x,1)*1);
+            } else {
+                tokens[i][j-1].push(tokens[i][j].splice(x,1)*1);
+            }
+        }
+
+    }
+
+    var chitchat = function(grid, numturns) {
+        var turns = 0;
+        var tokens = grid.slice(0);
+        while(turns != numturns){
+            for(var i=0; i<size; i++){
+                for(var j=0; j<size; j++){
+                    thisbox = tokens[i][j];
+                    for(var x=0; x< thisbox.length; x++){
+                        var actual_var = i*size + j;
+                        if(tokens[i][j][x] == actual_var){
+                            //do nothing
+                        } else {
+                            make_move(tokens,i,j,x);
+                        }                    
+                    }
+
+                }
+            }
+            //find how many are done
+            var numDone = 0;
+            for(var i=0; i<size; i++){
+                for(var j=0; j<size; j++){
+                    for(var x=0; x<tokens[i][j].length; x++){
+                        var actual_var = i*size + j;
+                        if(tokens[i][j][x] == actual_var){
+                            numDone++;
+                        }
+                    }
+                }
+            }
+            if(numDone == 100){
+                console.log(turns);
+                break;
+            }
+            console.log(numDone);
+    //        console.log(tokens);
+
+            
+            turns++;
+        }
+        
+        drawBoard(tokens); 
+    };
+    var drawBoard = function(grid) {
+        var table = document.createElement("table");
+        var main = document.getElementById("main");
+        console.log(main);
+        table.style.border="1px solid #333"; 
+        for(var i=0; i< size; i++) {
+            var tr = document.createElement("tr");
+            table.appendChild(tr)
+            for(var j=0; j< size; j++) {
+
+                var td = document.createElement("td");
+                var x=0;
+                //var sp = document.createElement("div");
+                if(grid[i][j].length >= size/5){
+                    td.className="danger";
+                }
+                for(var x=0; x<grid[i][j].length; x++){
+                    
+                    var actual_var = i*size + j;
+                    if(grid[i][j][x] == actual_var){
+                        td.className="safe";
+                    }                   
+                    
+                    td.innerHTML += grid[i][j][x] ;
+                    if(x != grid[i][j].length - 1){
+                        td.innerHTML += ",";
+                    }
+
+                }
+                tr.appendChild(td);
+            }
+        }
+        //document.appendChild(table);
+        console.log(table);
+        main.appendChild(table);
+    }
+    var init = function(){
+        size = 10;
+        room = size*size;
+        grid = [];
+        var seq = [];
+        for(var i=0; i<size*size; i++){
+            seq[i] = i;
+        }
+
+        shuffle(seq);
+        for(var i=0; i<size; i++){
+            grid[i] = []
+            for(var j=0; j<size; j++){
+                grid[i][j] = []            
+                grid[i][j][0] =seq[i*size + j];
+            }
+        }
+        drawBoard(grid);
+
+//        console.log(grid);
+        chitchat(grid, 100);        
+    }
+
+    init();
+       
+    </script>
+
+</html>
+
+
