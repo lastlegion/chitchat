@@ -6,9 +6,11 @@
     <style type="text/css">
         table{
            // border: 1px solid #333;
+           float: left;
+           margin-left: 25px;
         }
         td{
-            padding: 10px;
+            padding: 7px;
             border: 1px solid #333;
         }
         .safe{
@@ -17,61 +19,248 @@
         .danger{
             background: red;
         }
+        #messages{
+            font-family: courier, arial;
+        }
+        #plot{
+            clear: both;
+        }
+        body{
+            font-family: Tahoma, Verdana;
+        }
+        #buttons{
+            margin: 20px 80px;
+        }
+        #buttons div{
+            display: inline;
+        }
+        h1{
+            text-align: center;
+        }
+        body{
+            text-align: center;
+        }
+        #main{
+            margin: 0 auto;
+            width: 900px;
+        }
+        .button{
+            padding: 8px 12px;
+         //   background: #ccc;
+            width: 120px;
+            margin: 12px;
+        }
     </style>
 
 </head>
 <body>
+    <h1>ChitChat simulator</h1>   
+    <div id="buttons">
+                <button class="button" id="run">Run </button>
+    </div>
    <div id="main"></div> 
+   <div id="messages"></div>
+   <div id="plot" height="450px" width="850px"></div>
 </body>
-
+    <script type="text/javascript" src="Chart.js/Chart.js"></script>
+    <script type="text/javascript" src="jsapi.js"></script>
     <script type="text/javascript">
-    
+
     var size;
+    var TURNS = 1020;
+
+
+    var plotGraph = function(raw_data){
+      google.load("visualization", "1", {packages:["corechart"]});
+      google.setOnLoadCallback(drawChart);
+      
+      var proc_data = [];
+      for(var i=0; i<TURNS; i++){
+        proc_data[i] = [];
+        proc_data[i][0] = (i);
+        proc_data[i][1] = (raw_data[i]);
+      }
+      
+      
+    
+      function drawChart() {
+        var data = google.visualization.arrayToDataTable(proc_data);
+
+        var options = {
+          title: 'Performance'
+        };
+
+        var chart = new google.visualization.LineChart(document.getElementById('plot'));
+        chart.draw(data, options);
+    }
+
+    console.log("here");
+    }
+
+      
+    var plotGrapht = function(raw_data) {
+        var labels = [];
+        for(var i=0; i<= TURNS/10; i++ ){
+            labels[i] = i*10;
+        }
+        
+        console.log(raw_data);
+        var data = { 
+            labels: labels,
+            datasets:[
+                {
+                    fillColor : "rgba(220,220,220,0.5)",
+                    strokeColor : "rgba(220,220,220,1)",
+                    pointColor : "rgba(220,220,220,1)",
+                    pointStrokeColor : "#fff",
+                    data: raw_data
+                }
+            ] 
+        }
+        var options = {
+            //scaleOverride : true,
+            //scaleStepWidth: 400 
+            //scaleLabel: ""
+            //scaleShowLabels: false
+        }
+        //Plotting graph
+        var ctx = document.getElementById("plot").getContext("2d");
+        var myPlot = new Chart(ctx).Line(data, options);
+    };
 
 
     var shuffle = function(o) {
         for(var j,x,i = o.length; i; j = parseInt(Math.random() * i), x= o[--i],o[i] = o[j], o[j] = x);
         return o;
     };
-    var randomMove = function(){
-        var move = Math.floor((Math.random()*4) + 1);
+    var randomn = function(n){
+        var move = Math.floor((Math.random()*n) + 1);
         return move;
     }
     var make_move = function(tokens, i, j, x ){
         var move = Math.floor((Math.random()*4) + 1);
         //check if valid
-     
+
+        var top_move = function(){
+            tokens[i-1][j].push(tokens[i][j].splice(x,1)*1)
+        };
+        var right_move = function(){
+             tokens[i][j+1].push(tokens[i][j].splice(x,1)*1);
+        };
+        var left_move = function(){
+             tokens[i][j-1].push(tokens[i][j].splice(x,1)*1);
+        };
+        var bottom_move = function(){
+            tokens[i+1][j].push(tokens[i][j].splice(x,1)*1);
+        };
+        
         if(move == 1){  //top
             //bounds check
             if(i == 0){     //topmost row
-                //make bottom move
-                tokens[i+1][j].push(tokens[i][j].splice(x,1)*1)
-            } else {
-                //make top move
-                tokens[i-1][j].push(tokens[i][j].splice(x,1)*1)
-            }
+                move = randomn(3);
+                console.log(move);
+                if(j==0){ //topleft corner
+                    move = Math.floor((Math.random()*2)+1);
+                    if(move == 1)
+                        right_move();
+                    else
+                        bottom_move();
+                } else if(j==size-1){   //topright corner
+                    move = Math.floor((Math.random()*2)+1);
+                    if(move == 1)
+                        left_move();
+                    else
+                        bottom_move();
+                } else {
+                    if(move == 1)
+                        bottom_move();
+                    else if (move == 2)
+                        left_move();
+                    else if (move == 3)
+                        right_move();
+                }
+            } else 
+                top_move();
 
         } else if(move == 2){   //right
             //bounds check
-            if(j==size-1){
-                //make left move
-                tokens[i][j-1].push(tokens[i][j].splice(x,1)*1);
-            } else {
-                tokens[i][j+1].push(tokens[i][j].splice(x,1)*1);
-            }
+
+            if(j==size-1){  
+                move = randomn(3);
+                if(i==0){   //topright corner
+                    move = randomn(2);
+                    if(move == 1)
+                        left_move();
+                    else
+                        bottom_move();
+                } else if(i==size-1){   //bottomright
+                    move = randomn(2);
+                    if(move == 1)
+                        left_move();
+                    else
+                        top_move();
+                } else{     //rightmost
+                    if(move == 1)
+                        top_move();  
+                    else if (move == 2)
+                        left_move();
+                    else if (move == 3)
+                        bottom_move();           
+                }
+            } else 
+                right_move();
         } else if(move == 3){   //bottom
             //bounds check
             if(i == size-1){
-                //make top move
-                tokens[i-1][j].push(tokens[i][j].splice(x,1)*1);
+                move = randomn(3);
+                if(j == 0){ //bottom left
+                    move = randomn(2);
+                    if(move == 1)
+                        right_move();
+                    else 
+                        top_move();
+                } else if(j == size -1){    //bottom right
+                    move = randomn(2);
+                    if(move == 1)
+                        left_move();
+                    else
+                        top_move();
+                } else {          
+                    if(move == 1){
+                        top_move();
+                    } else if (move == 2){
+                        left_move();
+                    } else if (move == 3){
+                        right_move();
+                    }
+                }   
             } else {
-                tokens[i+1][j].push(tokens[i][j].splice(x,1)*1);
+                bottom_move();
             }
         } else if(move == 4){   //left
             //bounds check
             if(j == 0){
-                //make right move
-                tokens[i][j+1].push(tokens[i][j].splice(x,1)*1);
+                move = randomn(3);
+                if(i == 0){ //topleft
+                    move  = randomn(2);
+                    if(move == 1)
+                        right_move();
+                    else
+                        bottom_move();
+                } else if(i == size-1){ //bottomleft
+                    move = randomn(2);
+                    if(move == 1)
+                        right_move();
+                    else
+                        top_move();
+                } else {
+                    if(move == 1)
+                        top_move();   
+                    else if (move == 2)
+                        bottom_move();
+                     else if (move == 3)
+                        right_move();
+                }
             } else {
                 tokens[i][j-1].push(tokens[i][j].splice(x,1)*1);
             }
@@ -81,6 +270,7 @@
 
     var chitchat = function(grid, numturns) {
         var turns = 0;
+        var data = [];
         var tokens = grid.slice(0);
         while(turns != numturns){
             for(var i=0; i<size; i++){
@@ -110,22 +300,25 @@
                 }
             }
             if(numDone == 100){
-                console.log(turns);
+                //console.log(turns);
                 break;
             }
-            console.log(numDone);
+            //console.log(numDone);
     //        console.log(tokens);
-
-            
+            messages = document.getElementById("messages");
+            //messages.innerHTML += numDone + "<br />";
+            data.push(numDone);
             turns++;
         }
+        //console.log(data);
         
         drawBoard(tokens); 
+        plotGraph(data);
     };
     var drawBoard = function(grid) {
         var table = document.createElement("table");
         var main = document.getElementById("main");
-        console.log(main);
+        //console.log(main);
         table.style.border="1px solid #333"; 
         for(var i=0; i< size; i++) {
             var tr = document.createElement("tr");
@@ -155,7 +348,7 @@
             }
         }
         //document.appendChild(table);
-        console.log(table);
+        //console.log(table);
         main.appendChild(table);
     }
     var init = function(){
@@ -176,9 +369,13 @@
             }
         }
         drawBoard(grid);
-
+        var button = document.getElementById("run");
+        //run.onclick = function(e){
+        chitchat(grid, TURNS);      
+        //     console.log("yo");
+        //}
 //        console.log(grid);
-        chitchat(grid, 100);        
+         
     }
 
     init();
