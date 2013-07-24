@@ -1,0 +1,83 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script type="text/javascript">
+    </script>
+    <title>ChitChat simulator</title>
+    <style type="text/css">
+        table{
+           // border: 1px solid #333;
+           float: left;
+           margin-left: 25px;
+        }
+        td{
+            padding: 7px;
+            border: 1px solid #333;
+        }
+        .safe{
+            background: green;
+        }
+        .danger{
+            background: red;
+        }
+        #messages{
+            font-family: courier, arial;
+        }
+        #plot{
+            clear: both;
+        }
+        body{
+            font-family: Tahoma, Verdana;
+        }
+        #buttons{
+            margin: 20px 80px;
+        }
+        #buttons div{
+            display: inline;
+        }
+        h1{
+            text-align: center;
+        }
+        body{
+            text-align: center;
+        }
+        #main{
+            margin: 0 auto;
+            width: 900px;
+        }
+        .button{
+            padding: 8px 12px;
+         //   background: #ccc;
+            width: 120px;
+            margin: 12px;
+        }
+        input{
+            border: 1px solid #333;
+            padding: 10px;
+            font-size: 15px;
+        }
+    </style>
+
+</head>
+<body>
+    <h1>ChitChat simulator</h1>   
+    <div id="buttons">
+                <input type="text" id="inSize" placeholder = "Size"/>
+                <input type="text" id="inTurns" placeholder="Turns" />
+
+                <button class="button" id="run">Run </button>
+    </div>
+   <div id="main"></div> 
+   <div id="messages"></div>
+   <div id="plot" height="450px" width="850px"></div>
+</body>
+    
+    <script type="text/javascript" src="jsapi.js"></script>
+    <script type="text/javascript" src="chitChat.js">
+
+    </script>
+
+</html>
+
+
