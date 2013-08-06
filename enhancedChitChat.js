@@ -4,7 +4,6 @@
     
     var deliveryRatio, AVG, MEDIAN, MAX, MIN;
 
-
     var plotGraph = function(raw_data){
         //console.log("plot"); 
         var proc_data = [];
@@ -30,18 +29,15 @@
         //console.log("here");
     };
 
+ 
+
      
     var shuffle = function(o) {
         for(var j,x,i = o.length; i; j = parseInt(Math.random() * i), x= o[--i],o[i] = o[j], o[j] = x);
         return o;
     };
-    var randomn = function(n){
-        var move = Math.floor((Math.random()*n) + 1);
-        return move;
-    }
+
     var make_move = function(tokens, i, j, x ){
-        var move = Math.floor((Math.random()*4) + 1);
-        //check if valid
 
         var top_move = function(){
             tokens[i-1][j].push(tokens[i][j].splice(x,1)*1)
@@ -55,119 +51,30 @@
         var bottom_move = function(){
             tokens[i+1][j].push(tokens[i][j].splice(x,1)*1);
         };
-        
-        if(move == 1){  //top
-            //bounds check
-            if(i == 0){     //topmost row
-                move = randomn(3);
-                //console.log(move);
-                if(j==0){ //topleft corner
-                    move = Math.floor((Math.random()*2)+1);
-                    if(move == 1)
-                        right_move();
-                    else
-                        bottom_move();
-                } else if(j==size-1){   //topright corner
-                    move = Math.floor((Math.random()*2)+1);
-                    if(move == 1)
-                        left_move();
-                    else
-                        bottom_move();
-                } else {
-                    if(move == 1)
-                        bottom_move();
-                    else if (move == 2)
-                        left_move();
-                    else if (move == 3)
-                        right_move();
-                }
-            } else 
-                top_move();
-
-        } else if(move == 2){   //right
-            //bounds check
-
-            if(j==size-1){  
-                move = randomn(3);
-                if(i==0){   //topright corner
-                    move = randomn(2);
-                    if(move == 1)
-                        left_move();
-                    else
-                        bottom_move();
-                } else if(i==size-1){   //bottomright
-                    move = randomn(2);
-                    if(move == 1)
-                        left_move();
-                    else
-                        top_move();
-                } else{     //rightmost
-                    if(move == 1)
-                        top_move();  
-                    else if (move == 2)
-                        left_move();
-                    else if (move == 3)
-                        bottom_move();           
-                }
-            } else 
-                right_move();
-        } else if(move == 3){   //bottom
-            //bounds check
-            if(i == size-1){
-                move = randomn(3);
-                if(j == 0){ //bottom left
-                    move = randomn(2);
-                    if(move == 1)
-                        right_move();
-                    else 
-                        top_move();
-                } else if(j == size -1){    //bottom right
-                    move = randomn(2);
-                    if(move == 1)
-                        left_move();
-                    else
-                        top_move();
-                } else {          
-                    if(move == 1){
-                        top_move();
-                    } else if (move == 2){
-                        left_move();
-                    } else if (move == 3){
-                        right_move();
-                    }
-                }   
-            } else {
+        var actual_row = Math.floor(tokens[i][j][x]/size);
+        var actual_col = tokens[i][j][x] - (actual_row*size) ;
+         
+        //try aligning row first
+        if(i != actual_row){
+            if(i < actual_row){
                 bottom_move();
-            }
-        } else if(move == 4){   //left
-            //bounds check
-            if(j == 0){
-                move = randomn(3);
-                if(i == 0){ //topleft
-                    move  = randomn(2);
-                    if(move == 1)
-                        right_move();
-                    else
-                        bottom_move();
-                } else if(i == size-1){ //bottomleft
-                    move = randomn(2);
-                    if(move == 1)
-                        right_move();
-                    else
-                        top_move();
-                } else {
-                    if(move == 1)
-                        top_move();   
-                    else if (move == 2)
-                        bottom_move();
-                     else if (move == 3)
-                        right_move();
-                }
+                return;
             } else {
-                tokens[i][j-1].push(tokens[i][j].splice(x,1)*1);
+                top_move();
+                return;
             }
         }
-
+        if(j != actual_col){
+            if(j < actual_col){
+                right_move();
+                return;
+            } else {
+                left_move();
+                return;
+            }
+        }
+        //console.log("move");
+        console.log(actual_row + " " + actual_col + " " + tokens[i][j][x]);
     }
 
     var chitchat = function(grid, numturns) {
@@ -186,7 +93,6 @@
                             make_move(tokens,i,j,x);
                         }                    
                     }
-
                 }
             }
             //find how many are done
@@ -204,15 +110,12 @@
                     }
                 }
             }
-
-            messages = document.getElementById("messages");
-            //messages.innerHTML += numDone + "<br />";
+            if(numDone == size*size){
+                break;
+            }
             data.push(numDone);
             turns++;
         }
-        //console.log(data);
-        console.log(donevec); 
-        
 
         //find average, median, max, min
         var sum=0;
@@ -255,6 +158,10 @@
         console.log(AVG + " "+ MAX + " "+MIN);
         drawBoard(tokens); 
         plotGraph(data);
+
+
+
+
     };
     var drawBoard = function(grid) {
         var table = document.createElement("table");
@@ -295,12 +202,10 @@
     }
     var init = function(){
         size = 10;
-        room = size*size;
         for(var i=0; i<size*size; i++){
             donevec[i] =-1;
             console.log("here");
         }
-
 
         var button = document.getElementById("run");
         run.onclick = function(e){
@@ -323,13 +228,8 @@
                 }
             }
             drawBoard(grid);
-            
-            
             chitchat(grid, TURNS);      
-        //     console.log("yo");
         }
-//        console.log(grid);
-        //console.log("here"); 
     }
 
     //init();
